@@ -517,3 +517,121 @@ CANDIDATE: for my $candidate ( 2 .. 100 ) {
 print "\n ---------------- \n";
 
 
+###################################################################################
+###################################################################################
+##                                                                               ##
+##                              ARRAY FUNCTIONS                                  ##
+##                                                                               ##
+###################################################################################
+###################################################################################
+
+# Perl's built-in array methods are: pop, push, shift, unshift, and the general slice
+my @stack = ("Fred", "Eileen", "Denise", "Charlie");
+print @stack, "\n";         # Prints: FredEileenDeniseCharlie
+
+# Pop: removes and returns the final element of the array.
+print pop @stack, "\n";     # Prints: Charlie
+print @stack, "\n";         # Prints: FredEileenDenise
+
+# Push: appends new element(s) to the end of the array.
+push @stack, "Bob", "Alice";
+print @stack, "\n";         # Prints: FredEileenDeniseBobAlice
+
+# Shift: extracts and returns the _first_ element of the array.
+print shift @stack, "\n";   # Prints: Fred
+print @stack, "\n";         # Prints: EileenDeniseBobAlice
+
+# Unshift: ridiculous verbage for adding to the front of an array.
+unshift @stack, "Hank", "Grace";
+print @stack, "\n";         # Prints: HankGraceEileenDeniseBobAlice
+
+# Splice: removes and returns a slice from the array, with the option to replace it
+print splice(@stack, 1, 4, , "<<<", ">>>"), "\n";     # Prints:  GraceEileenDeniseBob
+# Leave index 0 : Hank, removes 1-4, replaces with <<<>>>, leaves index 5
+print @stack, "\n";         # Prints: Hank<<<>>>Alice
+
+###################################################################################
+
+# Perl's built-in methods for building new arrays from old ones are:
+# join, reverse, sort, map, grep, cmp (strings), <=>
+# Map and Grep are used to form list comprehensions.
+
+# Join: concatenates many strings into one
+my @elements = ("Antimony", "Arsenic", "Aluminum", "Selenium");
+print @elements, "\n";              # Prints: AntimonyArsenicAluminumSelenium
+print "@elements", "\n";            # Prints: Antimony Arsenic Aluminum Selenium
+print join(", ", @elements), "\n";  # Prints: Antimony, Arsenic, Aluminum, Selenium
+                                    # Printing the join doesn't modify the array itself
+
+# Reverse: in list-context, returns a list in reversed order; in scalar-context,
+# concatenates the list into one word and returns the reversed letter order.
+print reverse("Hello", "world"), "\n";      # Prints: worldHello
+print reverse("HelloWorld"), "\n";          # Prints: HelloWorld
+print scalar reverse("HelloWorld"), "\n";   # Prints: dlroWolleH
+print scalar reverse("Hello", "World"), "\n"; # Prints: dlroWolleH
+
+# Sort: returns the input array, sorted in ALPHABETICAL ORDER in place.
+my @elevations = (19, 1, 2, 100, 3, 98, 100, 1056);
+print join ", ", sort @elevations;      # Prints: 1, 100, 100, 1056, 19, 2, 3, 98 !!!!
+print " \n";
+my @names = ("Gloria", "Erica", "Eric", "Justin", "Jenna");
+print join ", ", sort @names;           # Prints: Eric, Erica, Gloria, Jenna, Justin
+print " \n";
+
+# Map: takes an array as the input and applies an operation to every scalar in it.
+# Constructs a NEW array out of the results. Operation to perform is inside {} braces.
+my @capitals = ("Baton Rouge", "Indianapolis", "Columbus", "Montgomery", "Helena", "Denver", "Boise");
+print join ", ", map { uc $_ } @capitals, "\n";
+                    # Prints: BATON ROUGE, INDIANAPOLIS, COLUMBUS, MONTGOMERY, HELENA, DENVER, BOISE,
+print join ", ", map { lc $_ } sort( @capitals ), "\n";
+                    # Prints: baton rouge, boise, columbus, denver, helena, indianapolis, montgomery,
+
+# Grep: Takes an array as an input and returns a filtered array as output.
+# Similar to map, except the second argument in grep is evaluated for each member of the array:
+# If the statement is evaluated as True, the element is put in the new array, otherwise skipped.
+print join ", ", grep { length $_ == 6 } @capitals;             # Prints: Helena, Denver
+print " \n";
+print join ", ", grep { substr($_, 0, 1) eq "D" } @capitals;    # Prints: Denver
+print " \n";
+print scalar grep { $_ eq "Columbus" } @capitals;               # Prints: 1
+print " \n";
+
+# Comparisons are done with cmp for strings (alphabetical) and the spaceship operator <=> for numbers.
+# $a and $b are inputs, Perl returns -1 if $a lt $b, 0 if $a eq $b, and 1 if $a gt $b
+# cmp operator:
+print join ", ", sort { $a cmp $b } @elevations;    # Prints: 1, 100, 100, 1056, 19, 2, 3, 98
+print " \n";
+print join ", ", sort { $a cmp $b } @capitals;  # Prints: Baton Rouge, Boise, Columbus, Denver, Helena, Indianapolis, Montgomery
+print " \n";
+
+# spaceship <=> operator: (Note: $a and $b are always scalars. You can write code for references)
+# $a and $b are inputs, Perl returns -1 if $a < $b, 0 if $a == $b, and 1 if $a > $b
+print join ", ", sort { $a <=> $b } @elevations;    # Prints: 1, 2, 3, 19, 98, 100, 100, 1056
+print " \n";
+print join ", ", sort { $a <=> $b } @capitals;  # Raises warning: Argument "Baton Rouge" isn't numeric in sort
+print " \n";                                    # Prints: Baton Rouge, Indianapolis, Columbus, Montgomery, Helena, Denver, Boise
+
+# NOTE: Like $_, $a and $b are actually global variables which are populated with a pair of
+# values to be compared each time.
+
+###################################################################################
+
+# Perl Built-In Functions
+# Common built-in functions include: print, sort, map, grep, keys, scalar, etc.
+# Built-in functions are:
+#    are numerous
+#    are very useful
+#    are extensively documented
+#    vary greatly in syntax, so check the documentation
+#    sometimes accept regular expressions as arguments
+#    sometimes accept entire blocks of code as arguments
+#    sometimes don't require commas between arguments
+#    sometimes will consume an arbitrary number of comma-separated arguments and sometimes will not
+#    sometimes will fill in their own arguments if too few are supplied
+#    generally don't require brackets around their arguments except in ambiguous circumstances
+#
+# The best advice regarding built-in functions is to know that they exist and to check the docs.
+# Chances are that a common and/or low-level task already has a built-in functions.
+
+###################################################################################
+

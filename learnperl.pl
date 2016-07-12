@@ -10,8 +10,14 @@ use warnings;
 
 print "Hello World\n";
 
-
 ###################################################################################
+###################################################################################
+##                                                                               ##
+##                              VARIABLES IN PERL                                ##
+##                                                                               ##
+###################################################################################
+###################################################################################
+
 
 # Perl has three types of variables, which are declared with the "my" keyword:
 # scalars, marked with $
@@ -356,3 +362,158 @@ print @$array6ref, "\n";        # Prints: 12345
 #        $hashref   = \%ENV;
 #        $coderef   = \&handler;
 #        $globref   = \*foo;
+
+
+###################################################################################
+###################################################################################
+##                                                                               ##
+##                           CONDITIONALS IN PERL                                ##
+##                                                                               ##
+###################################################################################
+###################################################################################
+
+# The three conditionals in Perl are: if, elsif, else
+my $word = "antidisestablishmentarianism";
+my $strlen = length $word;
+
+if ($strlen >= 15) {
+        print "'", $word, "' is a very long word. \n";
+} elsif (10 <= $strlen && $strlen < 15) {
+        print "'", $word, "' is a medium length word. \n";
+} else {
+        print "'", $word, "' is a short word. \n";
+}
+
+# The if can come second for short clauses:
+print "'", $word, "is an enormous word. \n" if $strlen >= 20;
+
+###################################################################################
+# Unless / else
+# Generally best avoided: Use and if/else block with a negation to make it more clear.
+my $temperature = 20;
+unless ($temperature > 30) {
+        print $temperature, " degrees Celsius is not very hot. \n";
+} else {
+        print $temperature, " degrees Celsius is quite hot. \n";
+}
+print "Oh no it's too cold. \n" unless $temperature > 15;
+
+###################################################################################
+# The Ternary operator: ?  -- Chooses between two options, separated by a colon :
+# Allows if statements to be embedded in other statements
+
+# Canonical case is to select between singular and plural forms
+my $gain = 42;
+print "You gained ", $gain, " ", ($gain == 1 ? "experience point" : "experience points"), "! \n";
+
+my $egg = 5;
+print "You have ", $egg == 0 ? "no eggs. \n" :
+                   $egg == 1 ? "an egg. \n" :
+                   "some eggs. \n";
+
+###################################################################################
+# If statements evaluate their conditions in scalar context.
+
+# if (@array) returns true if the array has 1 or more elements.
+my @array8 = (undef);
+my @array9 = ();
+print "True \n" if(@array8);    # Prints: True
+print "True \n" if (@array9);   # Prints: "", or false
+
+
+###################################################################################
+###################################################################################
+##                                                                               ##
+##                              LOOPS IN PERL                                    ##
+##                                                                               ##
+###################################################################################
+###################################################################################
+
+# Perl loops include: while, until, do, C-style for loops, Python-style foreach / for
+
+# While loops are pretty conventional:
+my $i = 0;
+while ($i < scalar @array) {
+        print $i, ": ", $array[$i];   # Prints: 0: print1: those2: strings3: out4: for5: me
+        $i++;
+}
+print "\n ---------------- \n";
+
+# Until loops are the opposite of whiles:
+my $j = 0;
+until ($j > scalar @array) {
+        print $j, ": ", $array[$j];   # Prints: 0: print1: those2: strings3: out4: for5: me
+        $j++;                         # Raises warning: Use of uninitialized value in print
+}
+print "\n ---------------- \n";
+
+# Do-while/until loops are almost equivalent to until loops, but would raise a warning if the
+# @array were empty, unlike the until loop
+my $k = 0;
+do {
+        print $k, ": ", $array[$k];   # Prints: 0: print1: those2: strings3: out4: for5: me
+        $k++;
+} while ($k < scalar @array);
+print "\n ---------------- \n";
+
+my $k = 0;
+do {
+        print $k, ": ", $array[$k];   # Prints: 0: print1: those2: strings3: out4: for5: me
+        $k++;                         # Raises warning: Use of uninitialized value in print
+} until ($k > scalar @array);
+print "\n ---------------- \n";
+
+# Basic C-style for loops, put the my declaration inside the loop to create a temp var
+for(my $i=0; $i < scalar @array; $i++) {
+        print $i, ": ", $array[$i];   # Prints: 0: print1: those2: strings3: out4: for5: me
+}  # $i variable no longer exists here
+print "\n ---------------- \n";
+
+# Native iteration as a for loop. In Perl, the for and foreach syntax do the same thing.
+foreach my $string ( @array) {
+        print $string;              # Prints: printthosestringsoutforme
+}
+print "\n ---------------- \n";
+
+# For a for loop over a range / btn indicies, use .. notation
+for my $i ( 0 .. $#array ) {
+        print $i, ": ", $array[$i]; # Prints: 0: print1: those2: strings3: out4: for5: me
+}
+print "\n ---------------- \n";
+
+# In Perl, you can only iterate over the keys of a hash, using the built-in keys method:
+foreach my $key (keys %scientists) {
+        print $key, ", ", $scientists{$key}, "; ";
+}                                   # Prints: Darwin, Charles; Einstein, Albert; Newton, Isaac;
+print "\n ---------------- \n";
+
+# If you want the keys of a hash sorted, use the buiilt-in sort method first:
+foreach my $key (sort keys %scientists) {
+        print $key, ", ", $scientists{$key}, "; ";
+}                                   # Prints: Darwin, Charles; Einstein, Albert; Newton, Isaac;
+print "\n ---------------- \n";
+
+# In poor style methinks, if you don't provide an iterator, Perl defaults to an underscore.
+# foreach ( @array ) {
+#       print $_;
+# }
+
+# You can also write super shorthand gross things:
+print $_ foreach @array;            # Prints: printthosestringsoutforme
+print "\n ---------------- \n";
+
+###################################################################################
+
+# Loop control: The keywords next and last can be used to control loops in Perl.
+# In most languages, these are the same as "continue" and "break"
+# loops can be labeled in ALLCAPS
+
+CANDIDATE: for my $candidate ( 2 .. 100 ) {
+        for my $divisor ( 2 .. sqrt $candidate ) {
+                next CANDIDATE if $candidate % $divisor == 0;
+        }
+        print $candidate." is prime. ";
+}
+print "\n ---------------- \n";
+
+

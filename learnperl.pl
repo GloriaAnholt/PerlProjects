@@ -745,8 +745,124 @@ print $nummtns, " \n";          # Prints: 3
 ###################################################################################
 ###################################################################################
 ##                                                                               ##
-##                                SYSTEM CALLS                                   ##
+##                       SYSTEM CALLS & FILE HANDLING                            ##
 ##                                                                               ##
 ###################################################################################
 ###################################################################################
 
+# In Windows and Linux systems, system calls finish with a 16-bit status "word", the first
+# 8-bits are a code between 0-255 -- 0 being no errors, others being degree of failure.
+# Perl subroutines can return these codes using the keyword "exit".
+
+# When a child process in Perl finishes, the built-in scalar variable $? is populated
+# with the status word from the child's processes termination.
+# You can access the error code with some bit shifting: $? >> 8
+
+# You can also use the built-in "system" function can be used to invoke (eg run)
+# another program from within your program, using the arguments you pass it.
+# The value returned from system is the same value as $?
+my $rc = system "perl", "anotherscript.pl", "foo", "bar", "baz";
+$rc >>= 8;
+print $rc, " \n";           # Prints: foobarbaz37
+
+# Alternatively, you can use backticks `` to run something on the command line from a
+# Perl script and capture the standard output. In scalar context the entire output is
+# returned as a single string.In list context, the entire output is # returned as an
+# array of strings, each one representing a line of output.
+my $text = `perl anotherscript.pl foo bar baz`;
+print $text, " \n";         # Prints: foobarbaz
+
+###################################################################################
+
+# File Handling
+# A scalar variable may contain a file handle instead of a num/str/ref or undef.
+# File handles are basically references to a specific location inside a file.
+
+# Reading Files
+# Use the built-in function "open" with a mode (read/writes).
+
+# COMMENTED OUT because "die" will kill this script at that point.
+# my $f = "text.txt";
+# my $result = open my $fh, "<", $f;      # Open file for read / input
+
+# if (!$result) {
+#        die "Couldn't open '".$f."' for reading because: ".$!;
+# }       # Prints: Couldn't open 'text.txt' for reading because: No such file or directory at learnperl.pl line 785.
+
+
+# You should always check if a file opened correctly, hence the common idiom:
+# my $f2 = "nope.txt";
+# open(my $fh, "<", $f2) || die "Also couldn't open '".$f2."' for reading because: ".$!;
+
+
+# Readline
+# To read lines of text from a file, use the built-in function readline, which returns
+# the entire line including eol characters, returning undef when eof is reached.
+my $f2 = "example.txt";
+open(my $fh, "<", $f2);
+
+while(1) {
+        my $line = readline $fh;
+        last unless defined $line;
+        # do some process to the line:
+        if ((length $line) % 2 == 0) {
+                chomp $line;        # Same as Ruby, truncates any trailing line break
+                print $line;
+                }
+}
+
+while(!eof $fh) {
+        my $line = readline $fh;
+        print $line;
+}
+
+print " \n";
+# Beware of using while(my $line = readline $fh), if $line is ever "0", the loop terminates early.
+# Instead, try using the spaceship operator:
+# while(my $line <$fh>) {
+        # process line...
+# }
+
+# Or, even shorter:
+# while(<$fh>) {
+	# process $_ ...
+# }
+
+# Writing to files
+my $eagles = "eagles.txt";
+open(my $fh2, ">", $eagles) || die "Couldn't open '".$eagles."' for writing because: ".$!;
+print $fh2 "The eagles have left the nest.";    # NOTE the lack of comma between $fh2 and next arg
+close $fh2;      # Files are automatically closed when out of scope.
+
+# Modes
+# If MODE is < or nothing, the file is opened for input
+# If MODE is >, file is opened for output, with existing files first being truncated
+#   ("clobbered") and nonexisting files newly created
+# If MODE is >> , file is opened for appending, and/or created if necessary.
+# If MODE is +<, file is opened for read/write updates ( +> mode would clobber the file before writing)
+# If MODE is <- or - opens STDIN
+# If MODE is >- opens STDOUT
+# For three or more arguments, Perl uses pipe |, see documentation for more info.
+
+# File handle built-ins: STDIN, STDOUT, STDERR
+# To get user input:
+# my $userin = <STDIN>;
+
+# To just wait for the user to hit Enter:
+# <STDIN>;
+
+# Calling <> with no filehandle reads data from STDIN,
+# or from any files named in arguments when the Perl script was called.
+
+# The built-in function "print" prints to STDOUT by default if no filehandle is named.
+
+###################################################################################
+
+# File Tests
+#The function -e is a built-in function which tests whether the named file exists.
+print "what" unless -e "/usr/bin/impossible";       # Prints: what
+print "what" unless -e "/usr/bin/perl";             # Doesn't print anything.
+
+# The function -d is a built-in function which tests whether the named file is a directory.
+# The function -f is a built-in function which tests whether the named file is a plain file.
+# There are many other file tests, all of the format -X, where x is an upper/lowercase letter.

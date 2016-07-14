@@ -862,7 +862,77 @@ close $fh2;      # Files are automatically closed when out of scope.
 #The function -e is a built-in function which tests whether the named file exists.
 print "what" unless -e "/usr/bin/impossible";       # Prints: what
 print "what" unless -e "/usr/bin/perl";             # Doesn't print anything.
+print " \n";
 
 # The function -d is a built-in function which tests whether the named file is a directory.
 # The function -f is a built-in function which tests whether the named file is a plain file.
 # There are many other file tests, all of the format -X, where x is an upper/lowercase letter.
+
+
+###################################################################################
+###################################################################################
+##                                                                               ##
+##                             REGULAR EXPRESSIONS                               ##
+##                                                                               ##
+###################################################################################
+###################################################################################
+
+# Core Perl regexes are the same as elsewhere, full regex capabilities are complex and difficult.
+
+# Match operations are performed using =~ m//
+# In scalar context, =~ m// returns true on success, false on failure.
+# In list context, =~ m// returns $1, $2, ... as a list.
+# Parentheses perform sub-matches, which are held in built-in variables $1, $2, $3, ...
+
+my $string = "Hello World";                 # SCALAR context
+if($string =~ m/(\w+)\s+(\w+)/) {
+        print "regex match success \n";     # Prints: regex match success
+}
+print $1, " \n";                            # Prints: Hello
+print $2, " \n";                            # Prints: World
+
+my $string = "colorless green ideas sleep furiously";
+my @matches = $string =~ m/(\w+)\s+((\w+)\s+(\w+))\s+(\w+)/;  # matches the double for green ideas, and as individual words
+print join ", ", map { "'".$_."'" } @matches; # Prints: 'colorless', 'green ideas', 'green', 'ideas', 'sleep'
+print "\n ----- \n";
+
+# Substitution operations are performed using =~ s///
+# You have to have a scalar variable on the left side, NOT a literal string
+my $wakeup = "Good morning world!";
+print $wakeup, " \n";                   # Prints: Good morning world!
+$wakeup =~ s/world/Vietnam/;
+print $wakeup, " \n";                   # Prints: Good morning Vietnam!
+# "wakeup" =~ s/world/Vietnam/;         # Error: Can't modify constant item in substitution (s///) at learnperl.pl line 905, near "s/world/Vietnam/;"
+
+# Group match is done with the /g flag:
+# In scalar context, each =~ m//g call finds another match after the previous one,
+# returning true on success, false on failure.
+# In list context, an =~ m//g call returns all of the matches at once.
+my $tonne = "a tonne of feathers or a tonne of bricks.";
+while($tonne =~ m/(\w+)/g) {
+        print "'".$1."'\n";     # Prints: 'a'
+                                #         'tonne' ... (each word a new line)
+}
+
+my @tonnes = $tonne =~ m/(\w+)/g;       # Prints: 'a', 'tonne', 'of', 'feathers', 'or', 'a', 'tonne', 'of', 'bricks'
+print join ", ", map { "'".$_."'" } @tonnes;
+print " \n";
+
+# Global search and replace, with number of matches, =~ s///g
+# Ex/ replace all vowels with the letter r:
+$tonne =~ s/[aeiou]/r/;
+print $tonne, " \n";                    # Prints: r tonne of feathers or a tonne of bricks.
+
+$tonne =~ s/[aeiou]/r/g;
+print $tonne, " \n";                    # Prints: r trnnr rf frrthrrs rr r trnnr rf brrcks.
+
+
+# Other Useful Flags:
+# The /i flag makes matches and substitutions case-insensitive.
+# The /x flag allows your regular expression to contain whitespace (line breaks) and comments.
+"Hello World" =~ m/
+  (\w+)   # One or more word characters
+  [ ]     # Single literal space, stored inside a character class
+  world   # literal "world
+/x;
+# Returns true

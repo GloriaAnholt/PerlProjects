@@ -633,5 +633,120 @@ print " \n";                                    # Prints: Baton Rouge, Indianapo
 # The best advice regarding built-in functions is to know that they exist and to check the docs.
 # Chances are that a common and/or low-level task already has a built-in functions.
 
+
+
+###################################################################################
+###################################################################################
+##                                                                               ##
+##                          USER DEFINED SUB-ROUTINES                            ##
+##                                                                               ##
+###################################################################################
+###################################################################################
+
+# Typically, Perl people refer to built-ins as 'functions' or 'built-ins', while
+# user-declared functions are called 'sub-routines'. Subs always accept a list of scalars.
+# Lists may be empty, while a single scalar is taken as a list with a one element.
+# If passed a hash (by value), it is flattened and taken as 2x list of items. Perl
+# requires passing hashes by reference.
+#
+# Sub-routines are declared with the "sub" keyword, and use curly braces {}.
+# Inside a subroutine, the lists' arguments are accessed with the built-in array variable @_
+
+sub hyphenate {
+    # Extract the first arg from the array, ignore the rest
+    my $word = shift @_;
+
+    # List comprehension: grab one letter, join with -, repeat until len - 1
+    $word = join "-", map { substr $word, $_, 1} ( 0 .. (length $word) - 1);
+    return $word;
+}
+print hyphenate("exterminate");     # Prints: e-x-t-e-r-m-i-n-a-t-e
+print " \n";
+
+###################################################################################
+
+# Calling by reference
+# Unlike almost every other major programming language, Perl calls by reference.
+# This means that the variables or values available inside the body of a subroutine
+# are not copies of the originals: they *are* the originals.
+
+my $x = 7;
+
+sub reassign {
+    $_[0] = 42;
+}
+reassign($x);
+print $x, "\n";     # Prints: 42
+
+###################################################################################
+
+# Unpacking Arguments
+# You should always unpack (copy locally) your $_ arguments before working with them.
+
+# Unpacking @_ entry by entry is effective but not terribly pretty:
+sub left_pad {
+        my $oldstring = $_[0];
+        my $width = $_[1];
+        my $padchar = $_[2];
+        my $newstring = ($padchar x ($width - length $oldstring)). $oldstring;
+        return $newstring;
+}
+print left_pad("oh hai", 10, "~");      # Prints: ~~~~oh hai
+print " \n";
+
+# Unpacking @_ by removing data using shift is recommended for up to 4 arguments:
+sub left_pad2 {
+        my $oldstr = shift @_;
+        my $width = shift @_;
+        my $padchar = shift;         # If you don't specify an array, it works on @_ implicitly
+        my $newstr = ($padchar x ($width - length $oldstr)) . $oldstr;
+        return $newstr;
+}
+print left_pad2("halo", 10, "%");       # Prints: %%%%%%halo
+print " \n";
+
+# A multiple simultaneous scalar assignment can unpack all of @_, useful for up to 4 arguments:
+sub left_pad3 {
+        my ($oldstr, $width, $padchar) = @_;
+        my $newstr = ($padchar x ($width - length $oldstr)) . $oldstr;
+        return $newstr;
+}
+print left_pad3("well", 8, "@");        # Prints: @@@@well
+print " \n";
+
+# For subroutines with < 4 args, it's best to use a hash of arguments and grab them by key:
+sub left_pad4 {
+        my %args = @_;
+        my $newstr = ($args{"padchar"} x ($args{"width"} - length $args{"oldstr"})). $args{"oldstr"};
+}
+print left_pad4("oldstr" => "pod", "width" => 10, "padchar" => "&");
+print " \n";                            # Prints: &&&&&&&pod
+
+###################################################################################
+
+# Returning Values
+# Perl has a built-in which can determine context of a subroutine for you for return values:
+
+sub contextsub {
+        # If caller wants a list:
+        return ("Everest", "Mt Hood", "Mt Tabor") if wantarray;
+
+        # If caller wants a scalar:
+        return 3;
+}
+
+my @mtns = contextsub();
+print @mtns, " \n";             # Prints: EverestMt HoodMt Tabor
+
+my $nummtns = contextsub();
+print $nummtns, " \n";          # Prints: 3
+
+
+###################################################################################
+###################################################################################
+##                                                                               ##
+##                                SYSTEM CALLS                                   ##
+##                                                                               ##
+###################################################################################
 ###################################################################################
 
